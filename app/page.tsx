@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
-import { ChevronRight, CirclePlus, ClipboardList, Clock3, CreditCard, FileText, IndianRupee, LayoutDashboard, Menu, MoreHorizontal, PackageCheck, ReceiptIndianRupee, Search, Settings as SettingsIcon, ShoppingBag, Smartphone, Users, WalletCards, X, Check, MessageCircle, Printer, Pencil, Trash2, LogOut } from 'lucide-react'
+import { ChevronRight, CirclePlus, ClipboardList, Clock3, CreditCard, FileText, IndianRupee, LayoutDashboard, MoreHorizontal, PackageCheck, ReceiptIndianRupee, Search, Settings as SettingsIcon, ShoppingBag, Smartphone, Users, WalletCards, X, Check, MessageCircle, Printer, Pencil, Trash2, LogOut, Plus } from 'lucide-react'
 import {
   METHODS, STATUSES, addDays, daysBetween, deliveredPatch, emptyPower, formatMobile, formatTime, nowTime, initials, iso, isOverdue, money, orderBalance, orderPaid, orderTotal, payClass, payState, seedSettings, shortDate,
   type Customer, type Frame, type Lens, type Method, type Order, type Settings, type Status,
@@ -12,7 +12,7 @@ import { downloadInvoice } from '@/lib/invoice'
 import * as db from '@/lib/db'
 import { PERIODS, downloadReport, inRange, reportRange, type Period } from '@/lib/report'
 
-type Modal = 'confirm' | 'order' | 'customer' | 'customerDetail' | 'orderDetail' | 'settings' | 'catalogItem' | null
+type Modal = 'more' | 'confirm' | 'order' | 'customer' | 'customerDetail' | 'orderDetail' | 'settings' | 'catalogItem' | null
 type OrderForm = {
   mobile: string; name: string; village: string; delivery: string
   od: string[]; os: string[]
@@ -48,6 +48,7 @@ export default function Page() {
   const [custom, setCustom] = useState({ from: iso(addDays(now, -29)), to: iso(now) })
   const [deliveryFilter, setDeliveryFilter] = useState('')
   const [suggest, setSuggest] = useState<'' | 'mobile' | 'name'>('')
+  const [mobileStatus, setMobileStatus] = useState<Status>('Ordered')
   const [dragNo, setDragNo] = useState('')
   const [dragOver, setDragOver] = useState<Status | ''>('')
   const [catalogTab, setCatalogTab] = useState<'Frames' | 'Lenses'>('Frames')
@@ -305,7 +306,6 @@ export default function Page() {
 
     <section className="content-area">
       <header className="topbar">
-        <button className="mobile-menu" aria-label="Open menu"><Menu /></button>
         <div className="search-wrap"><Search />
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search customers, mobile, order number or note..." aria-label="Search customers, mobile, order number or note" />
           {query && <button className="clear-search" onClick={() => setQuery('')} aria-label="Clear search"><X /></button>}
@@ -338,9 +338,11 @@ export default function Page() {
               {deliveryFilter && <><button className="text-link" onClick={() => setDeliveryFilter('')}>Clear</button><span>{visibleOrders.length} order{visibleOrders.length === 1 ? '' : 's'} due {new Date(`${deliveryFilter}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span></>}</div>}{activeNav === 'Reports' && <Button variant="outline" onClick={exportReport}><FileText data-icon="inline-start" /> Download PDF</Button>}{activeNav === 'Customers' && <Button variant="outline" onClick={openAddCustomer}><Users data-icon="inline-start" /> Add customer</Button>}</div></div>
 
           {activeNav === 'Orders' && <>
-            <div className="board-grid">{STATUSES.map(status => <div className={`board-column ${dragOver === status ? 'drop-target' : ''}`} key={status} onDragOver={e => { if (dragNo) { e.preventDefault(); setDragOver(status) } }} onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver('') }} onDrop={e => { e.preventDefault(); dropOn(status) }}>
+            <div className="status-tabs" role="tablist">{STATUSES.map(st => <button key={st} role="tab" aria-selected={mobileStatus === st} className={mobileStatus === st ? 'selected' : ''} onClick={() => setMobileStatus(st)}>{st}<b>{visibleOrders.filter(o => o.status === st).length}</b></button>)}</div>
+            <div className="board-grid">{STATUSES.map(status => <div className={`board-column ${dragOver === status ? 'drop-target' : ''} ${mobileStatus === status ? 'mobile-active' : ''}`} key={status} onDragOver={e => { if (dragNo) { e.preventDefault(); setDragOver(status) } }} onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver('') }} onDrop={e => { e.preventDefault(); dropOn(status) }}>
               <div className="board-heading"><strong>{status}</strong><span>{visibleOrders.filter(o => o.status === status).length}</span></div>
               {visibleOrders.filter(o => o.status === status).map(o => <div role="button" tabIndex={0} draggable className={`board-card ${isOverdue(o, today) ? 'overdue-card' : ''} ${dragNo === o.number ? 'dragging' : ''}`} key={o.number} onClick={() => openOrder(o)} onKeyDown={e => { if (e.key === 'Enter') openOrder(o) }} onDragStart={e => { setDragNo(o.number); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', o.number) }} onDragEnd={() => { setDragNo(''); setDragOver('') }}><span className="card-actions"><button aria-label={`Edit ${o.number}`} onClick={e => { e.stopPropagation(); openEditOrder(o) }}><Pencil /></button><button aria-label={`Delete ${o.number}`} className="danger" onClick={e => { e.stopPropagation(); askDelete('order', o.number) }}><Trash2 /></button></span><span className="mono">{o.number}</span><strong>{nameOf(o)}</strong><small>{villageOf(o)} · {dayLabel(o.createdAt)}</small><em className={payClass(payState(o))}>{payLabel(o)}</em></div>)}
+              {!visibleOrders.some(o => o.status === status) && <p className="board-empty">No {status.toLowerCase()} orders{deliveryFilter ? ' for this delivery date' : ''}.</p>}
             </div>)}</div>
           </>}
 
@@ -410,7 +412,12 @@ export default function Page() {
         </>}
       </div>
 
-      <div className="mobile-nav">{nav.slice(0, 3).map(({ label, icon: Icon }) => <button key={label} className={activeNav === label ? 'active' : ''} onClick={() => setActiveNav(label)}><Icon /><span>{label}</span></button>)}<button className="mobile-new" onClick={() => openNewOrder()}><CirclePlus /><span>New</span></button><button onClick={() => { setSettingsDraft(settings); setModal('settings') }}><MoreHorizontal /><span>More</span></button></div>
+      <div className="mobile-nav">
+        {[nav[0], nav[1]].map(({ label, icon: Icon }) => <button key={label} className={activeNav === label ? 'active' : ''} onClick={() => setActiveNav(label)}><Icon /><span>{label}</span></button>)}
+        <button className="mobile-new" aria-label="New order" onClick={() => openNewOrder()}><span className="fab"><Plus /></span><span>New order</span></button>
+        <button className={activeNav === 'Customers' ? 'active' : ''} onClick={() => setActiveNav('Customers')}><Users /><span>Customers</span></button>
+        <button className={['Frames & lenses', 'Reports'].includes(activeNav) ? 'active' : ''} onClick={() => setModal('more')}><MoreHorizontal /><span>More</span></button>
+      </div>
     </section>
 
     {modal === 'order' && form && <div className="modal-backdrop" onClick={() => setModal(null)}><section className="order-modal" onClick={e => e.stopPropagation()}>
@@ -512,6 +519,12 @@ export default function Page() {
       <Button variant="outline" className="modal-submit logout-mobile" onClick={logout}><LogOut data-icon="inline-start" /> Log out</Button>
     </section></div>}
 
+    {modal === 'more' && <div className="modal-backdrop sheet-backdrop" onClick={() => setModal(null)}><section className="more-sheet" onClick={e => e.stopPropagation()}>
+      <div className="sheet-grip" />
+      {nav.slice(3).map(({ label, icon: Icon }) => <button key={label} className={activeNav === label ? 'active' : ''} onClick={() => { setActiveNav(label); setModal(null) }}><Icon /> {label}</button>)}
+      <button onClick={() => { setSettingsDraft(settings); setModal('settings') }}><SettingsIcon /> Settings</button>
+      <button className="danger" onClick={logout}><LogOut /> Log out</button>
+    </section></div>}
     {modal === 'confirm' && pendingDelete && (() => {
       const o = pendingDelete.kind === 'order' ? orders.find(x => x.number === pendingDelete.id) : undefined
       const c = pendingDelete.kind === 'customer' ? customers.find(x => x.id === pendingDelete.id) : undefined
