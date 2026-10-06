@@ -1,10 +1,14 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Dancing_Script, Playfair_Display } from 'next/font/google'
 import './globals.css'
 
+const logoSerif = Playfair_Display({ subsets: ['latin'], weight: ['800'], variable: '--font-logo-serif', display: 'swap' })
+const logoScript = Dancing_Script({ subsets: ['latin'], weight: ['700'], variable: '--font-logo-script', display: 'swap' })
+
 export const metadata: Metadata = {
-  title: 'Khalyani Chasma Ghar | Shop Dashboard',
-  description: 'A simple, fast shop management system for Khalyani Chasma Ghar.',
+  title: 'Chasma Ghar | Shop Dashboard',
+  description: 'A simple, fast shop management system for Chasma Ghar.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -14,7 +18,6 @@ export const metadata: Metadata = {
       },
       {
         url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
       },
       {
         url: '/icon.svg',
@@ -26,10 +29,9 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
+  colorScheme: 'light',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
 }
 
@@ -39,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${logoSerif.variable} ${logoScript.variable}`}>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
