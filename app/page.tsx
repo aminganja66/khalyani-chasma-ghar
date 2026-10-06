@@ -21,7 +21,7 @@ type OrderForm = {
   mode: 'Full payment' | 'Part payment' | 'Pay at delivery'; advance: string; method: Method
 }
 
-const nav = [{ label: 'Home', icon: LayoutDashboard }, { label: 'Orders', icon: ReceiptIndianRupee }, { label: 'Customers', icon: Users }, { label: 'Catalog', icon: ShoppingBag }, { label: 'Reports', icon: WalletCards }]
+const nav = [{ label: 'Home', icon: LayoutDashboard }, { label: 'Orders', icon: ReceiptIndianRupee }, { label: 'Customers', icon: Users }, { label: 'Frames & lenses', icon: ShoppingBag }, { label: 'Reports', icon: WalletCards }]
 const digits = (s: string) => s.replace(/\D/g, '')
 const num = (s: string) => Number(digits(s) || 0)
 const last10 = (s: string) => digits(s).slice(-10)
@@ -333,7 +333,7 @@ export default function Page() {
         </div></div>
 
         {activeNav !== 'Home' && <section className="workspace-panel panel">
-          <div className="workspace-toolbar"><div><p className="eyebrow">{settings.shopName}</p><h2>{activeNav === 'Orders' ? 'Orders board' : activeNav === 'Customers' ? 'Customer book' : activeNav === 'Catalog' ? 'Frames & lenses' : 'Shop reports'}</h2></div>
+          <div className="workspace-toolbar"><div><p className="eyebrow">{settings.shopName}</p><h2>{activeNav === 'Orders' ? 'Orders board' : activeNav === 'Customers' ? 'Customer book' : activeNav === 'Frames & lenses' ? 'Frames & lenses' : 'Shop reports'}</h2></div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>{activeNav === 'Orders' && <div className="order-filter"><label>Expected delivery<input type="date" value={deliveryFilter} onChange={e => setDeliveryFilter(e.target.value)} /></label>
               {deliveryFilter && <><button className="text-link" onClick={() => setDeliveryFilter('')}>Clear</button><span>{visibleOrders.length} order{visibleOrders.length === 1 ? '' : 's'} due {new Date(`${deliveryFilter}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span></>}</div>}{activeNav === 'Reports' && <Button variant="outline" onClick={exportReport}><FileText data-icon="inline-start" /> Download PDF</Button>}{activeNav === 'Customers' && <Button variant="outline" onClick={openAddCustomer}><Users data-icon="inline-start" /> Add customer</Button>}</div></div>
 
@@ -349,7 +349,7 @@ export default function Page() {
             return <div role="button" tabIndex={0} className="customer-row" key={c.id} onClick={() => openCustomer(c)} onKeyDown={e => { if (e.key === 'Enter') openCustomer(c) }}><span className="result-avatar">{initialsOf(c)}</span><span><strong>{c.name}</strong><small>{c.village} · {formatMobile(c.mobile)} · {visits} visit{visits === 1 ? '' : 's'}</small></span><b className={bal ? 'status-unpaid' : 'status-paid'}>{bal ? `${money(bal)} due` : 'Paid'}</b><span className="row-actions"><button aria-label={`Edit ${c.name}`} onClick={e => { e.stopPropagation(); openEditCustomer(c) }}><Pencil /></button><button aria-label={`Delete ${c.name}`} className="danger" onClick={e => { e.stopPropagation(); askDelete('customer', c.id) }}><Trash2 /></button></span></div>
           }) : <p className="modal-help" style={{ padding: 21 }}>No customers yet. Add one to get started.</p>}</div>}
 
-          {activeNav === 'Catalog' && <>
+          {activeNav === 'Frames & lenses' && <>
             <div className="catalog-edit-toolbar"><span>Add the frames and lenses you sell. Prices are entered on each order.</span><div><Button variant="outline" onClick={() => openCatalogItem('Frame')}><CirclePlus data-icon="inline-start" /> Add frame</Button><Button variant="outline" onClick={() => openCatalogItem('Lens')}><CirclePlus data-icon="inline-start" /> Add lens</Button></div></div>
             <div className="catalog-tabs">{(['Frames', 'Lenses'] as const).map(t => <button key={t} className={catalogTab === t ? 'selected' : ''} onClick={() => setCatalogTab(t)}>{t} <b>{t === 'Frames' ? frames.length : lenses.length}</b></button>)}</div>
             <div className="catalog-list">{(catalogTab === 'Frames' ? frames : lenses).map(item => {
@@ -405,7 +405,7 @@ export default function Page() {
           </section>
           <section className="lower-grid">
             <div className="balance-card"><div className="balance-head"><div><p className="eyebrow">Friendly reminder</p><h2>Pending dues</h2></div><div className="balance-icon"><IndianRupee /></div></div><strong className="balance-total">{money(pendingTotal)}</strong><p className="balance-sub">from {pendingCustomers} customer{pendingCustomers === 1 ? '' : 's'}</p><div className="balance-footer"><span>Oldest due: <b>{oldestPending} days</b></span><button onClick={() => { setActiveNav('Orders') }}>View list <ChevronRight /></button></div></div>
-            <div className="quick-card"><div><p className="eyebrow">Quick actions</p><h2>Make the counter faster</h2></div><div className="quick-actions"><button onClick={() => openNewOrder()}><CirclePlus /><span>New order</span></button><button onClick={() => setActiveNav('Customers')}><Users /><span>Find customer</span></button><button onClick={() => setActiveNav('Catalog')}><ShoppingBag /><span>Catalog</span></button></div></div>
+            <div className="quick-card"><div><p className="eyebrow">Quick actions</p><h2>Make the counter faster</h2></div><div className="quick-actions"><button onClick={() => openNewOrder()}><CirclePlus /><span>New order</span></button><button onClick={() => setActiveNav('Customers')}><Users /><span>Find customer</span></button><button onClick={() => setActiveNav('Frames & lenses')}><ShoppingBag /><span>Frames & lenses</span></button></div></div>
           </section>
         </>}
       </div>
