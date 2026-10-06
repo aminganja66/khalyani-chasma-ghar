@@ -188,3 +188,52 @@ html, body { height: 100%; overflow: hidden; }
 .login-links button{border:0;background:transparent;padding:0;color:var(--terra);font-size:12px;font-weight:600;cursor:pointer}
 .login-links button:hover{text-decoration:underline}
 .login-shell{display:flex}.login-card{margin:auto}
+
+/* mobile "More" sheet */
+.sheet-backdrop{align-items:end;padding:0}
+.more-sheet{width:100%;background:var(--surface);border-radius:16px 16px 0 0;padding:8px 12px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:2px}
+.sheet-grip{width:36px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 8px}
+.more-sheet button{display:flex;align-items:center;gap:12px;height:48px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;text-align:left}
+.more-sheet button:hover,.more-sheet button.active{background:var(--paper)}
+.more-sheet button.active{color:var(--terra)}
+.more-sheet button.danger{color:#b91c1c}
+.more-sheet svg{width:19px;height:19px}
+@media (min-width:721px){.sheet-backdrop{display:none}}
+
+/* centre "New order" button (the rest of the bottom bar keeps its original design) */
+.mobile-nav .mobile-new{color:var(--terra);font-weight:700}
+.mobile-nav .mobile-new .fab{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--terra-soft);color:var(--terra);transition:transform .15s,background .15s}
+.mobile-nav .mobile-new:active .fab{transform:scale(.92);background:#c7d2fe}
+.mobile-nav .mobile-new .fab svg{width:22px;height:22px;background:none;padding:0;border-radius:0;stroke-width:2.4;color:var(--terra)}
+
+/* Orders: one status at a time on phones, full board on larger screens */
+.status-tabs{display:none}
+.board-empty{display:none;margin:0;padding:28px 12px;text-align:center;font-size:13px;color:var(--muted-ink)}
+@media (max-width:720px){
+  .status-tabs{display:flex;gap:6px;padding:12px 12px 0;background:var(--paper)}
+  .status-tabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted-ink);font-size:12px;font-weight:600}
+  .status-tabs button b{display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--paper);color:var(--ink);font-size:10px}
+  .status-tabs button.selected{background:var(--terra-soft);border-color:#c7d2fe;color:var(--terra)}
+  .status-tabs button.selected b{background:var(--terra);color:#fff}
+  .board-column:not(.mobile-active){display:none}
+  .board-column .board-heading{display:none}
+  .board-column .board-empty{display:block}
+}
+
+/* Orders on phones: one consistent 16px inset and rhythm */
+@media (max-width:720px){
+  .workspace-toolbar{flex-direction:column;align-items:stretch;gap:14px;padding:18px 16px}
+  .workspace-toolbar>div:last-child{width:100%}
+  .order-filter,.order-filter label{width:100%}
+  .order-filter input{width:100%;height:42px}
+  .status-tabs{gap:8px;padding:14px 16px 0;background:#f5f6f8;border-top:1px solid var(--line)}
+  .status-tabs button{min-width:0;padding:0 6px;font-size:12px}
+  .board-grid{padding:14px 16px 18px}
+  .board-card{margin-bottom:12px;padding:14px 16px;gap:6px}
+  .board-card:last-child{margin-bottom:0}
+  .board-empty{padding:32px 12px}
+}
+@media (max-width:720px){
+  .status-tabs button{flex:1 1 0;gap:5px;padding:0 4px;font-size:11.5px}
+  .status-tabs button b{min-width:18px;height:18px;padding:0 4px}
+}
